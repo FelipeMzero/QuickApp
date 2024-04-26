@@ -1,30 +1,169 @@
 <!DOCTYPE html>
-<html lang="pt-BR">
+<html lang="pt-br">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Atumação de Playlist</title>
-    <link rel="stylesheet" href="./static/css/index.css">
+    <title>Cloud Playlist Info Extractor</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f4f4;
+        }
+
+        .container {
+            max-width: 600px;
+            margin: 50px auto;
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+
+        label {
+            font-weight: bold;
+        }
+
+        input[type="text"], input[type="submit"], button {
+            width: calc(100% - 22px);
+            padding: 10px;
+            margin-bottom: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            box-sizing: border-box;
+        }
+
+        input[type="submit"], button {
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background-color: #45a049;
+        }
+
+        h2, h3 {
+            margin-top: 20px;
+        }
+
+        #playlistInfo p {
+            margin-bottom: 10px;
+            padding: 5px;
+            border-radius: 5px;
+            background-color: #f0f0f0;
+        }
+
+        #playlistInfo p span {
+            cursor: pointer;
+            text-decoration: underline;
+        }
+    </style>
 </head>
 <body>
     <div class="container">
-        <h2>Atumação de Playlist</h2>
+        <h2>Cloud Playlist Info Extractor</h2>
         <form id="playlistForm">
             <label for="playlistLink">Playlist Link:</label>
             <input type="text" id="playlistLink" name="playlistLink" required>
 
-            <input type="submit" value="Extract Playlist Info">
+            <input type="submit" value="Extrair Informações">
         </form>
         <div id="playlistInfo" style="display: none;">
-            <h3>Extracted Playlist Information:</h3>
-            <p><strong>Playlist Name:</strong> <span id="playlistName"></span></p>
+            <h3>Informações Extraídas da Playlist:</h3>
+            <p><strong>Nome da Playlist:</strong> <span id="playlistName"></span></p>
             <p><strong>Host:</strong> <span id="host"></span></p>
-            <p><strong>Username:</strong> <span id="username"></span></p>
-            <p><strong>Password:</strong> <span id="password"></span></p>
-            <p><strong>Playlist EPG URL:</strong> <span id="playlistEpgUrl"></span></p>
+            <p><strong>Usuário:</strong> <span id="username"></span></p>
+            <p><strong>Senha:</strong> <span id="password"></span></p>
+            <p><strong>URL da Playlist EPG:</strong> <span id="playlistEpgUrl"></span></p>
         </div>
     </div>
-    <script src="./static/js/index.js"></script>
 
+    <script>
+        document.getElementById("playlistForm").addEventListener("submit", function(event) {
+            event.preventDefault();
+            extractPlaylistInfo();
+        });
+
+        function extractPlaylistInfo() {
+            var playlistLink = document.getElementById("playlistLink").value;
+
+            // Extrair nome de usuário e senha da playlistLink
+            var username = playlistLink.match(/username=([^&]*)/)[1];
+            var password = playlistLink.match(/password=([^&]*)/)[1];
+
+            // Definir outras informações
+            var playlistName = "Cloud";
+            var host = "http://srv.cldplay.in";
+            var playlistEpgUrl = "http://srv.cldplay.in/xmltv.php?username=" + username + "&password=" + password + "&type=m3u_plus&output=ts";
+
+            // Exibir informações extraídas na página
+            document.getElementById("playlistName").innerText = playlistName;
+            document.getElementById("host").innerText = host;
+            document.getElementById("username").innerText = username;
+            document.getElementById("password").innerText = password;
+            document.getElementById("playlistEpgUrl").innerText = playlistEpgUrl;
+
+            document.getElementById("playlistInfo").style.display = "block";
+
+            // Adicionar botão de exportar para arquivo de texto
+            var exportButton = document.createElement("button");
+            exportButton.innerText = "Exportar para TXT";
+            exportButton.addEventListener("click", function() {
+                exportToTxt(playlistName, host, username, password, playlistEpgUrl);
+            });
+            document.getElementById("playlistInfo").appendChild(exportButton);
+
+            // Adicionar botão para atualizar a página
+            var reloadButton = document.createElement("button");
+            reloadButton.innerText = "Atualizar Página";
+            reloadButton.addEventListener("click", function() {
+                location.reload();
+            });
+            document.getElementById("playlistInfo").appendChild(reloadButton);
+
+            // Tornar áreas clicáveis para copiar
+            var elementsToCopy = document.querySelectorAll("#playlistName, #host, #username, #password, #playlistEpgUrl");
+            elementsToCopy.forEach(function(element) {
+                element.style.cursor = "pointer";
+                element.addEventListener("click", function() {
+                    copyToClipboard(element.innerText);
+                });
+            });
+        }
+
+        function exportToTxt(playlistName, host, username, password, playlistEpgUrl) {
+            var textToSave = "Nome da Playlist: " + playlistName + "\n" +
+                            "Host: " + host + "\n" +
+                            "Username: " + username + "\n" +
+                            "Password: " + password + "\n" +
+                            "Playlist EPG URL: " + playlistEpgUrl;
+
+            var blob = new Blob([textToSave], {type: "text/plain"});
+            var url = window.URL.createObjectURL(blob);
+
+            var a = document.createElement("a");
+            a.style.display = "none";
+            a.href = url;
+            a.download = "playlist_info.txt";
+            document.body.appendChild(a);
+            a.click();
+
+            window.URL.revokeObjectURL(url);
+        }
+
+        function copyToClipboard(text) {
+            var textarea = document.createElement("textarea");
+            textarea.value = text;
+            document.body.appendChild(textarea);
+            textarea.select();
+            document.execCommand("copy");
+            document.body.removeChild(textarea);
+            alert("Copiado para a área de transferência!");
+        }
+    </script>
 </body>
 </html>
