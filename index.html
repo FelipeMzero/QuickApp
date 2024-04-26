@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Atumação de Playlist</title>
+    <link rel="stylesheet" href="/static/css/index.css">
+    <script src="/static/js/index.js"></script>
+</head>
+<body>
+    <div class="container">
+        <h2>Atumação de Playlist</h2>
+        <form id="playlistForm">
+            <label for="playlistLink">Playlist Link:</label>
+            <input type="text" id="playlistLink" name="playlistLink" required>
+
+            <input type="submit" value="Extract Playlist Info">
+        </form>
+        <div id="playlistInfo" style="display: none;">
+            <h3>Extracted Playlist Information:</h3>
+            <p><strong>Playlist Name:</strong> <span id="playlistName"></span></p>
+            <p><strong>Host:</strong> <span id="host"></span></p>
+            <p><strong>Username:</strong> <span id="username"></span></p>
+            <p><strong>Password:</strong> <span id="password"></span></p>
+            <p><strong>Playlist EPG URL:</strong> <span id="playlistEpgUrl"></span></p>
+        </div>
+    </div>
+    <script src="/static/js/index.js"></script>
+
+</body>
+</html>
